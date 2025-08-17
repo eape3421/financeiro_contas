@@ -6,6 +6,26 @@ from datetime import datetime
 import streamlit_authenticator as stauth
 import streamlit_authenticator as stauth
 from streamlit_authenticator.utilities.hasher import Hasher
+import streamlit as st
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
+
+# 🔽 Carregando o arquivo de configuração
+with open('config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+# 🔐 Autenticação
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days'],
+    config['preauthorized']
+)
+
+# 🟢 Login
+name, authentication_status, username = authenticator.login('main')
 
 # Configuração da página
 st.set_page_config(page_title="Controle Financeiro Pro", layout="wide")
