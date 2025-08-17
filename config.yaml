@@ -17,10 +17,3 @@ cookie:
   expiry_days: 30
   key: assinatura_segura
   name: cookie_financeiro
-
-preauthorized:
-  emails:
-    - eraldo@email.com
-    - maria@email.com
-    - joao@email.com
-
