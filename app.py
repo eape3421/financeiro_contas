@@ -7,7 +7,6 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import speech_recognition as sr
 from PIL import Image
-import io
 
 st.set_page_config(page_title="Controle Financeiro", layout="wide")
 st.markdown("## 📊 Controle Financeiro Pessoal")
