@@ -1,12 +1,7 @@
-streamlit>=1.32.0
-streamlit-authenticator>=0.2.3
+streamlit
+streamlit-authenticator
+PyYAML
 pandas
-numpy
-matplotlib
 plotly
-sqlalchemy
-psycopg2-binary
 openpyxl
 xlsxwriter
-pillow
-speechrecognition
