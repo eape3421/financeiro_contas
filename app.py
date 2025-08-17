@@ -1,149 +1,93 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import sqlite3
+import plotly.express as px
 from datetime import datetime
-import speech_recognition as sr
-from PIL import Image
+import hashlib
 
-st.set_page_config(page_title="Controle Financeiro", layout="wide")
-st.markdown("## 📊 Controle Financeiro Pessoal")
-st.markdown("Gerencie seus gastos, visualize gráficos e envie relatórios por e-mail.")
-st.markdown("---")
+# Configuração da página
+st.set_page_config(page_title="Controle Financeiro Pro", layout="wide")
 
-# Abas principais
-aba1, aba2, aba3, aba4 = st.tabs(["📁 Planilha", "💸 Gráficos", "🎙️ Voz & 📷 Imagem", "📧 E-mail"])
+# Funções de autenticação
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-# Variável para armazenar dados manuais
-dados_digitados = pd.DataFrame(columns=["Data", "Categoria", "Valor", "Descrição"])
-df_completo = pd.DataFrame(columns=["Data", "Categoria", "Valor", "Descrição"])
-with aba1:
-    st.subheader("📁 Upload da planilha")
-    uploaded_file = st.file_uploader("Envie sua planilha de gastos (.csv)", type=["csv"])
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        df['Data'] = pd.to_datetime(df['Data'], errors='coerce')
-        st.success("Planilha carregada com sucesso!")
-        min_date = df['Data'].min()
-        max_date = df['Data'].max()
-        start_date, end_date = st.date_input("📅 Selecione o período", [min_date, max_date])
-        df_filtrado = df[(df['Data'] >= pd.to_datetime(start_date)) & (df['Data'] <= pd.to_datetime(end_date))]
-    else:
-        df_filtrado = pd.DataFrame()
+def verificar_login(usuario, senha):
+    conn = sqlite3.connect("usuarios.db")
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS usuarios (usuario TEXT, senha TEXT)")
+    cursor.execute("SELECT senha FROM usuarios WHERE usuario=?", (usuario,))
+    resultado = cursor.fetchone()
+    conn.close()
+    return resultado and resultado[0] == hash_password(senha)
 
-    st.markdown("### ✍️ Adicionar gasto manualmente")
-    with st.form("formulario_manual"):
-        data_manual = st.date_input("Data do gasto", value=datetime.today())
-        categorias_opcoes = [
-            "Transporte", "Alimentação", "Cartão de crédito", "Cartão de débito",
-            "PIX", "Lazer", "Saúde", "Receita"
-        ]
-        categoria_manual = st.selectbox("Categoria", categorias_opcoes)
-        valor_manual = st.number_input("Valor", min_value=0.0, format="%.2f")
-        descricao_manual = st.text_input("Descrição")
-        enviar_manual = st.form_submit_button("Adicionar")
-        if enviar_manual:
-            novo_dado = pd.DataFrame({
-                "Data": [data_manual],
-                "Categoria": [categoria_manual],
-                "Valor": [valor_manual],
-                "Descrição": [descricao_manual]
-            })
-            dados_digitados = pd.concat([dados_digitados, novo_dado], ignore_index=True)
-            st.success("Gasto adicionado com sucesso!")
-    st.dataframe(dados_digitados)
-    st.markdown("### 📤 Exportar dados para Excel")
-if st.button("Exportar Excel"):
-    df_completo.to_excel("relatorio_financeiro.xlsx", index=False)
-    st.success("Arquivo 'relatorio_financeiro.xlsx' gerado com sucesso!")
+def registrar_usuario(usuario, senha):
+    conn = sqlite3.connect("usuarios.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO usuarios VALUES (?, ?)", (usuario, hash_password(senha)))
+    conn.commit()
+    conn.close()
 
-    # Combinar dados da planilha com os digitados
-    if not df_filtrado.empty:
-        df_completo = pd.concat([df_filtrado, dados_digitados], ignore_index=True)
-    else:
-        df_completo = dados_digitados
+# Login
+st.sidebar.title("🔐 Login")
+opcao = st.sidebar.radio("Acesso", ["Entrar", "Registrar"])
+usuario = st.sidebar.text_input("Usuário")
+senha = st.sidebar.text_input("Senha", type="password")
 
-with aba2:
-    if not df_completo.empty:
-        st.subheader("📊 Dashboard Financeiro")
+if opcao == "Registrar":
+    if st.sidebar.button("Criar conta"):
+        registrar_usuario(usuario, senha)
+        st.sidebar.success("Conta criada com sucesso!")
 
-        total_receita = df_completo[df_completo["Categoria"] == "Receita"]["Valor"].sum()
-        total_despesa = df_completo[df_completo["Categoria"] != "Receita"]["Valor"].sum()
-        saldo = total_receita - total_despesa
-        economia_percentual = (saldo / total_receita * 100) if total_receita > 0 else 0
-
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("💰 Receita", f"R$ {total_receita:.2f}")
-        col2.metric("📉 Despesa", f"R$ {total_despesa:.2f}")
-        col3.metric("📊 Saldo", f"R$ {saldo:.2f}")
-        col4.metric("📈 Economia (%)", f"{economia_percentual:.1f}%")
-
-        st.markdown("---")
-        st.subheader("🎯 Meta de economia mensal")
-        meta = st.number_input("Defina sua meta de economia (R$)", min_value=0.0, format="%.2f")
-        if meta > 0:
-            if saldo >= meta:
-                st.success(f"✅ Meta atingida! Você economizou R$ {saldo:.2f}")
-            else:
-                st.error(f"⚠️ Meta não atingida. Faltam R$ {meta - saldo:.2f}")
-
-        st.markdown("---")
-        st.subheader("📊 Gastos por categoria (barra)")
-        categoria_total = df_completo[df_completo["Categoria"] != "Receita"].groupby("Categoria")["Valor"].sum()
-        fig_bar, ax_bar = plt.subplots()
-        categoria_total.plot(kind="bar", ax=ax_bar)
-        st.pyplot(fig_bar)
-
-        st.subheader("🥧 Gastos por categoria (pizza)")
-        fig_pie, ax_pie = plt.subplots()
-        categoria_total.plot(kind="pie", ax=ax_pie, autopct="%1.1f%%")
-        ax_pie.set_ylabel("")
-        st.pyplot(fig_pie)
-    else:
-        st.warning("Adicione dados manualmente ou envie uma planilha na aba '📁 Planilha'.")
-
-with aba3:
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("🎙️ Adicionar gasto por voz")
-        if st.button("Gravar"):
-            r = sr.Recognizer()
-            with sr.Microphone() as source:
-                st.info("Fale agora...")
-                audio = r.listen(source)
-            try:
-                texto = r.recognize_google(audio, language="pt-BR")
-                st.success(f"Você disse: {texto}")
-            except:
-                st.error("Não foi possível reconhecer a fala.")
-    with col2:
-        st.subheader("📷 Adicionar comprovante por imagem")
-        imagem = st.file_uploader("Envie uma imagem", type=["jpg", "png"])
-        if imagem:
-            img = Image.open(imagem)
-            st.image(img, caption="Comprovante enviado", use_column_width=True)
-
-with aba4:
-    st.subheader("📧 Enviar relatório por e-mail")
-    destinatario = st.text_input("E-mail do destinatário")
-    if st.button("Enviar"):
-        if not df_completo.empty:
-            try:
-                msg = MIMEMultipart()
-                msg['From'] = "seuemail@gmail.com"
-                msg['To'] = destinatario
-                msg['Subject'] = "Relatório Financeiro"
-                corpo = f"Relatório de gastos:\n\n{df_completo.to_string(index=False)}"
-                msg.attach(MIMEText(corpo, 'plain'))
-                servidor = smtplib.SMTP('smtp.gmail.com', 587)
-                servidor.starttls()
-                servidor.login("seuemail@gmail.com", "sua_senha_de_app")
-                servidor.send_message(msg)
-                servidor.quit()
-                st.success("Relatório enviado com sucesso!")
-            except Exception as e:
-                st.error(f"Erro ao enviar e-mail: {e}")
+if opcao == "Entrar":
+    if st.sidebar.button("Entrar"):
+        if verificar_login(usuario, senha):
+            st.sidebar.success("Login realizado!")
+            st.session_state["logado"] = True
         else:
-            st.warning("Adicione dados ou carregue uma planilha para enviar o relatório.")
+            st.sidebar.error("Usuário ou senha inválidos")
+
+# Se logado, mostra o app
+if st.session_state.get("logado"):
+    st.title("📊 Controle Financeiro Profissional")
+    conn = sqlite3.connect("gastos.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS gastos (
+            usuario TEXT, data TEXT, categoria TEXT, valor REAL, descricao TEXT
+        )
+    """)
+
+    # Entrada de dados
+    st.subheader("✍️ Adicionar gasto")
+    with st.form("formulario"):
+        data = st.date_input("Data", value=datetime.today())
+        categoria = st.selectbox("Categoria", ["Alimentação", "Transporte", "Lazer", "Saúde", "Outros"])
+        valor = st.number_input("Valor", min_value=0.0, format="%.2f")
+        descricao = st.text_input("Descrição")
+        enviar = st.form_submit_button("Salvar")
+        if enviar:
+            cursor.execute("INSERT INTO gastos VALUES (?, ?, ?, ?, ?)",
+                           (usuario, str(data), categoria, valor, descricao))
+            conn.commit()
+            st.success("Gasto salvo com sucesso!")
+
+    # Visualização
+    st.subheader("📈 Visualização de gastos")
+    df = pd.read_sql_query("SELECT * FROM gastos WHERE usuario=?", conn, params=(usuario,))
+    df["data"] = pd.to_datetime(df["data"])
+    periodo = st.date_input("Filtrar por período", [df["data"].min(), df["data"].max()])
+    df_filtrado = df[(df["data"] >= pd.to_datetime(periodo[0])) & (df["data"] <= pd.to_datetime(periodo[1]))]
+
+    st.dataframe(df_filtrado)
+
+    # Gráfico por categoria
+    if not df_filtrado.empty:
+        fig = px.pie(df_filtrado, names="categoria", values="valor", title="Distribuição por categoria")
+        st.plotly_chart(fig, use_container_width=True)
+
+        fig_bar = px.bar(df_filtrado.groupby("categoria")["valor"].sum().reset_index(),
+                         x="categoria", y="valor", title="Total por categoria")
+        st.plotly_chart(fig_bar, use_container_width=True)
+
+    conn.close()
