@@ -54,6 +54,10 @@ with aba1:
             dados_digitados = pd.concat([dados_digitados, novo_dado], ignore_index=True)
             st.success("Gasto adicionado com sucesso!")
     st.dataframe(dados_digitados)
+    st.markdown("### 📤 Exportar dados para Excel")
+if st.button("Exportar Excel"):
+    df_completo.to_excel("relatorio_financeiro.xlsx", index=False)
+    st.success("Arquivo 'relatorio_financeiro.xlsx' gerado com sucesso!")
 
     # Combinar dados da planilha com os digitados
     if not df_filtrado.empty:
