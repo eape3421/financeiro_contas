@@ -79,7 +79,7 @@ with aba2:
         fig, ax = plt.subplots()
         categoria_total.plot(kind="bar", ax=ax)
         st.pyplot(fig)
-        st.markdown("---")
+st.markdown("---")
 st.subheader("📉 Análise de saldo")
 
 if "Receita" in df_completo["Categoria"].unique():
