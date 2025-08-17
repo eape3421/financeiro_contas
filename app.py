@@ -14,7 +14,7 @@ usernames = ["eraldo"]
 passwords = ["senha123"]  # Substitua por sua senha real
 
 # Criptografar senhas
-hashed_passwords = stauth.Hasher(passwords).generate()
+hashed_passwords = [stauth.Hasher(password).hash() for password in passwords]
 
 # Autenticação
 authenticator = stauth.Authenticate(
