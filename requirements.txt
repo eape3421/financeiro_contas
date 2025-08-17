@@ -1,25 +1,12 @@
-# Streamlit core
-streamlit
-
-# Manipulação de dados
+streamlit>=1.32.0
+streamlit-authenticator>=0.2.3
 pandas
 numpy
-
-# Visualizações
 matplotlib
 plotly
-
-# Autenticação
-streamlit-authenticator
-
-# Banco de dados
 sqlalchemy
-psycopg2-binary  # Para PostgreSQL (remova se não usar)
-
-# Exportação de dados
-openpyxl  # Para exportar para Excel
+psycopg2-binary
+openpyxl
 xlsxwriter
-
-# Outros utilitários
-pillow  # Para imagens
-speechrecognition  # Se estiver usando comandos de voz
+pillow
+speechrecognition
