@@ -18,7 +18,7 @@ aba1, aba2, aba3, aba4 = st.tabs(["📁 Planilha", "💸 Gráficos", "🎙️ Vo
 
 # Variável para armazenar dados manuais
 dados_digitados = pd.DataFrame(columns=["Data", "Categoria", "Valor", "Descrição"])
-
+df_completo = pd.DataFrame(columns=["Data", "Categoria", "Valor", "Descrição"])
 with aba1:
     st.subheader("📁 Upload da planilha")
     uploaded_file = st.file_uploader("Envie sua planilha de gastos (.csv)", type=["csv"])
