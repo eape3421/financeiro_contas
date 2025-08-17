@@ -79,38 +79,22 @@ with aba2:
         fig, ax = plt.subplots()
         categoria_total.plot(kind="bar", ax=ax)
         st.pyplot(fig)
-st.markdown("---")
-st.subheader("📉 Análise de saldo")
 
-if "Receita" in df_completo["Categoria"].unique():
-    total_receita = df_completo[df_completo["Categoria"] == "Receita"]["Valor"].sum()
-    total_despesa = df_completo[df_completo["Categoria"] != "Receita"]["Valor"].sum()
-    saldo = total_receita - total_despesa
+        # Análise de saldo
+        st.markdown("---")
+        st.subheader("📉 Análise de saldo")
 
-    if saldo < 0:
-        st.error(f"⚠️ Atenção: suas despesas superam suas receitas em R$ {abs(saldo):.2f}")
-    else:
-        st.success(f"✅ Suas receitas estão acima das despesas. Saldo positivo de R$ {saldo:.2f}")
-else:
-    st.info("ℹ️ Nenhuma categoria 'Receita' foi encontrada nos dados.")
+        if "Receita" in df_completo["Categoria"].unique():
+            total_receita = df_completo[df_completo["Categoria"] == "Receita"]["Valor"].sum()
+            total_despesa = df_completo[df_completo["Categoria"] != "Receita"]["Valor"].sum()
+            saldo = total_receita - total_despesa
 
-        # Verificar se há categoria "Receita"
-if "Receita" in df_completo["Categoria"].unique():
-    total_receita = df_completo[df_completo["Categoria"] == "Receita"]["Valor"].sum()
-    total_despesa = df_completo[df_completo["Categoria"] != "Receita"]["Valor"].sum()
-
-    saldo = total_receita - total_despesa
-
-    st.markdown("---")
-    st.subheader("📉 Análise de saldo")
-
-    if saldo < 0:
-        st.error(f"⚠️ Atenção: suas despesas superam suas receitas em R$ {abs(saldo):.2f}")
-    else:
-        st.success(f"✅ Suas receitas estão acima das despesas. Saldo positivo de R$ {saldo:.2f}")
-else:
-    st.info("ℹ️ Nenhuma categoria 'Receita' foi encontrada nos dados.")
-
+            if saldo < 0:
+                st.error(f"⚠️ Atenção: suas despesas superam suas receitas em R$ {abs(saldo):.2f}")
+            else:
+                st.success(f"✅ Suas receitas estão acima das despesas. Saldo positivo de R$ {saldo:.2f}")
+        else:
+            st.info("ℹ️ Nenhuma categoria 'Receita' foi encontrada nos dados.")
     else:
         st.warning("Adicione dados manualmente ou envie uma planilha na aba '📁 Planilha'.")
 
