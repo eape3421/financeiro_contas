@@ -19,10 +19,10 @@ authenticator = stauth.Authenticate(
 
 
 # Login
-login_info = authenticator.login(location='main')
+login_result = authenticator.login(location='main')
 
-if login_info is not None and len(login_info) == 3:
-    name, authentication_status, username = login_info
+if login_result is not None and isinstance(login_result, tuple) and len(login_result) == 3:
+    name, authentication_status, username = login_result
 
     if authentication_status is False:
         st.error('Usuário ou senha incorretos')
@@ -32,8 +32,11 @@ if login_info is not None and len(login_info) == 3:
         authenticator.logout('Logout', 'sidebar')
         st.sidebar.title(f'Bem-vindo, {name}!')
         st.title('📊 Controle Financeiro')
+
+        # (restante do seu código continua aqui)
 else:
     st.error("Erro ao autenticar. Verifique o config.yaml.")
+
 
 
 
