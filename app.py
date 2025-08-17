@@ -20,8 +20,10 @@ authenticator = stauth.Authenticate(
 
 # Login
 login_info = authenticator.login(location='main')
+
 if login_info is not None and len(login_info) == 3:
     name, authentication_status, username = login_info
+
     if authentication_status is False:
         st.error('Usuário ou senha incorretos')
     elif authentication_status is None:
@@ -32,6 +34,7 @@ if login_info is not None and len(login_info) == 3:
         st.title('📊 Controle Financeiro')
 else:
     st.error("Erro ao autenticar. Verifique o config.yaml.")
+
 
 
 if authentication_status is False:
