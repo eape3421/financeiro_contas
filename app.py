@@ -14,7 +14,7 @@ authenticator = stauth.Authenticate(
 )
 
 # Login
-name, authentication_status, username = authenticator.login('Login', 'main')
+name, authentication_status, username = authenticator.login('main')
 
 if authentication_status:
     st.sidebar.success(f"Bem-vindo, {name}!")
