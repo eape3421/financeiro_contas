@@ -1,20 +1,26 @@
 credentials:
   usernames:
-    jsmith:
-      email: jsmith@gmail.com
-      name: John Smith
-      password: abc  # será automaticamente criptografada
-    rbriggs:
-      email: rbriggs@gmail.com
-      name: Rebecca Briggs
-      password: def
+    eraldo:
+      email: eraldo@email.com
+      name: Eraldo
+      password: senha123
+    maria:
+      email: maria@email.com
+      name: Maria
+      password: maria456
+    joao:
+      email: joao@email.com
+      name: João
+      password: joao789
 
 cookie:
   expiry_days: 30
-  key: some_signature_key
-  name: some_cookie_name
+  key: assinatura_segura
+  name: cookie_financeiro
 
 preauthorized:
   emails:
-    - jsmith@gmail.com
+    - eraldo@email.com
+    - maria@email.com
+    - joao@email.com
 
