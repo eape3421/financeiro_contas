@@ -4,6 +4,8 @@ import sqlite3
 import plotly.express as px
 from datetime import datetime
 import streamlit_authenticator as stauth
+import streamlit_authenticator as stauth
+from streamlit_authenticator.utilities.hasher import Hasher
 
 # Configuração da página
 st.set_page_config(page_title="Controle Financeiro Pro", layout="wide")
@@ -14,7 +16,9 @@ usernames = ["eraldo"]
 passwords = ["senha123"]  # Substitua por sua senha real
 
 # Criptografar senhas
-hashed_passwords = [stauth.Hasher(password).hash() for password in passwords]
+from streamlit_authenticator.utilities.hasher import Hasher
+
+hashed_passwords = [Hasher().hash(pwd) for pwd in passwords]
 
 # Autenticação
 authenticator = stauth.Authenticate(
