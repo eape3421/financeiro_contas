@@ -3,9 +3,14 @@ credentials:
     eraldo:
       email: eraldo@example.com
       name: Eraldo
-      password: 'hashed_password_aqui'
+      password: '$2b$12$uON60sh.2IdIk4cka2YILuRo4kQai.pU8McK/owmmJ.QawK85GrdK'  # senha: 1234
+      role: admin
 
 cookie:
-  name: financeiro_cookie
-  key: some_random_key
   expiry_days: 30
+  key: 'minha_chave_secreta'
+  name: 'financeiro_cookie'
+
+preauthorized:
+  emails:
+    - eraldo@example.com
