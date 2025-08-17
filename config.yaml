@@ -8,10 +8,6 @@ credentials:
       email: maria@email.com
       name: Maria
       password: maria456
-    joao:
-      email: joao@email.com
-      name: João
-      password: joao789
 
 cookie:
   expiry_days: 30
