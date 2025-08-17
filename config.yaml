@@ -1,15 +1,11 @@
 credentials:
   usernames:
     eraldo:
-      email: eraldo@email.com
+      email: eraldo@example.com
       name: Eraldo
-      password: senha123
-    maria:
-      email: maria@email.com
-      name: Maria
-      password: maria456
+      password: 'hashed_password_aqui'
 
 cookie:
+  name: financeiro_cookie
+  key: some_random_key
   expiry_days: 30
-  key: assinatura_segura
-  name: cookie_financeiro
