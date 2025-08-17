@@ -19,7 +19,12 @@ authenticator = stauth.Authenticate(
 
 
 # Login
-name, authentication_status, username = authenticator.login(location='main')
+login_info = authenticator.login(location='main')
+if login_info:
+    name, authentication_status, username = login_info
+else:
+    st.error("Erro ao autenticar. Verifique o config.yaml.")
+
 
 if authentication_status is False:
     st.error('Usuário ou senha incorretos')
