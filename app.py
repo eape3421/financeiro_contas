@@ -33,12 +33,9 @@ if login_result is not None and isinstance(login_result, tuple) and len(login_re
         st.sidebar.title(f'Bem-vindo, {name}!')
         st.title('📊 Controle Financeiro')
 
-        # (restante do seu código continua aqui)
+        # (continuação do seu código)
 else:
     st.error("Erro ao autenticar. Verifique o config.yaml.")
-
-
-
 
 
 if authentication_status is False:
