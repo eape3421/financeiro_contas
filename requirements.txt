@@ -1,5 +1,25 @@
+# Streamlit core
 streamlit
+
+# Manipulação de dados
 pandas
+numpy
+
+# Visualizações
 matplotlib
-speechrecognition
-pillow
+plotly
+
+# Autenticação
+streamlit-authenticator
+
+# Banco de dados
+sqlalchemy
+psycopg2-binary  # Para PostgreSQL (remova se não usar)
+
+# Exportação de dados
+openpyxl  # Para exportar para Excel
+xlsxwriter
+
+# Outros utilitários
+pillow  # Para imagens
+speechrecognition  # Se estiver usando comandos de voz
