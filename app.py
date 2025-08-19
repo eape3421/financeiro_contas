@@ -8,19 +8,6 @@ from datetime import datetime
 import sqlite3
 
 
-# 🎯 Banco de dados local para metas
-conn_sqlite = sqlite3.connect("financeiro.db", check_same_thread=False)
-cursor = conn_sqlite.cursor()
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS metas (
-        categoria TEXT PRIMARY KEY,
-        valor REAL
-    )
-""")
-conn_sqlite.commit()
-
-
-
 # 🎯 Banco de dados para metas
 conn = sqlite3.connect("financeiro.db", check_same_thread=False)
 cursor = conn.cursor()
