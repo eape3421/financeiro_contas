@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 import plotly.express as px
 import smtplib
@@ -6,6 +7,22 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import sqlite3
+
+# 🔗 Conexão com Google Sheets
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+# 🎯 Banco de dados local para metas
+conn_sqlite = sqlite3.connect("financeiro.db", check_same_thread=False)
+cursor = conn_sqlite.cursor()
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS metas (
+        categoria TEXT PRIMARY KEY,
+        valor REAL
+    )
+""")
+conn_sqlite.commit()
+
+
 
 # 🎯 Banco de dados para metas
 conn = sqlite3.connect("financeiro.db", check_same_thread=False)
