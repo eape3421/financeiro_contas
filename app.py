@@ -78,12 +78,20 @@ else:
     df_filtrado = pd.DataFrame(columns=["Data", "Categoria", "Descrição", "Valor"])
 
 # Indicadores principais
+# Indicadores principais
 st.subheader("📌 Indicadores")
 col1, col2, col3 = st.columns(3)
 col1.metric("Total gasto", f"R$ {df_filtrado['Valor'].sum():.2f}")
 col2.metric("Média por gasto", f"R$ {df_filtrado['Valor'].mean():.2f}")
-categoria_top = categoria_total.idxmax()
-col3.metric("Categoria mais cara", f"{categoria_top} - R$ {categoria_total.max():.2f}")
+
+# ✅ Correção aqui
+categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+if not categoria_total.empty:
+    categoria_top = categoria_total.idxmax()
+    col3.metric("Categoria mais cara", f"{categoria_top} - R$ {categoria_total.max():.2f}")
+else:
+    col3.metric("Categoria mais cara", "Nenhum dado disponível")
+
 
     # Gráfico de gastos por categoria
 st.subheader("💸 Gastos por categoria")
