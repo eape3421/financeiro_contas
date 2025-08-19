@@ -1,14 +1,4 @@
 streamlit
-streamlit-authenticator
-PyYAML
 pandas
 plotly
-openpyxl
-xlsxwriter
-matplotlib
-numpy
-SpeechRecognition
-st-gsheets-connection
-validators==0.21.1
-st-gsheets-connection
 
