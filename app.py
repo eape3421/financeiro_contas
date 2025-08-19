@@ -150,6 +150,7 @@ def exportar_e_enviar(df_filtrado, df):
     )
     st.plotly_chart(fig, use_container_width=True)
 
+
     st.subheader("📥 Exportar dados")
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button("⬇️ Baixar como CSV", data=csv, file_name="gastos_financeiros.csv", mime="text/csv")
