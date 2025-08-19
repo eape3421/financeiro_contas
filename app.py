@@ -43,14 +43,19 @@ def filtrar_por_periodo(df):
 def mostrar_indicadores(df_filtrado):
     st.subheader("📌 Indicadores")
     categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+    metas = carregar_metas()
+
     col1, col2, col3 = st.columns(3)
     col1.metric("💰 Total gasto", f"R$ {df_filtrado['Valor'].sum():.2f}")
     col2.metric("📈 Média por gasto", f"R$ {df_filtrado['Valor'].mean():.2f}")
+
     if not categoria_total.empty:
         categoria_top = categoria_total.idxmax()
-        col3.metric("🔥 Categoria mais cara", f"{categoria_top} - R$ {categoria_total.max():.2f}")
+        emoji = "🔥" if categoria_total[categoria_top] > metas.get(categoria_top, 0) else "✅"
+        col3.metric(f"{emoji} Categoria mais cara", f"{categoria_top} - R$ {categoria_total.max():.2f}")
     else:
         col3.metric("🔥 Categoria mais cara", "Nenhum dado disponível")
+
     return categoria_total
 
 def mostrar_graficos(df_filtrado, categoria_total):
