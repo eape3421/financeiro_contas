@@ -122,7 +122,7 @@ def comparar_metas(df_filtrado):
         st.info(f"🟡 Atenção: você está perto de ultrapassar a meta nas categorias: {', '.join(quase_estouradas)}")
 
 def exportar_e_enviar(df_filtrado, df):
-def grafico_pizza_alerta(categoria_total):
+    def grafico_pizza_alerta(categoria_total):
     st.subheader("🥧 Distribuição de gastos por categoria")
 
     metas = carregar_metas()
