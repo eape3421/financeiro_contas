@@ -55,6 +55,45 @@ if not df.empty:
     fig, ax = plt.subplots()
     categoria_total.plot(kind="bar", ax=ax)
     st.pyplot(fig)
+# Metas mensais por categoria (formulário interativo)
+st.subheader("🎯 Defina suas metas mensais")
+
+metas = {}
+categorias = ["Alimentação", "Transporte", "Lazer", "Saúde", "Educação", "Moradia"]
+for categoria in categorias:
+    metas[categoria] = st.number_input(f"Meta para {categoria} (R$)", min_value=0.0, step=10.0, key=f"meta_{categoria}")
+
+# Comparativo com metas
+st.subheader("📊 Comparativo com metas mensais")
+
+categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+
+for categoria, meta in metas.items():
+    gasto = categoria_total.get(categoria, 0)
+    percentual = (gasto / meta) * 100 if meta > 0 else 0
+    cor = "🟢" if gasto <= meta else "🔴"
+    st.write(f"{cor} {categoria}: R$ {gasto:.2f} / Meta: R$ {meta:.2f} ({percentual:.1f}%)")
+
+# Alerta de estouro de orçamento
+estouradas = [cat for cat, meta in metas.items() if categoria_total.get(cat, 0) > meta]
+if estouradas:
+    st.warning(f"⚠️ Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
+
+
+# Comparativo com metas
+st.subheader("🎯 Comparativo com metas mensais")
+
+for categoria, meta in metas.items():
+    gasto = categoria_total.get(categoria, 0)
+    percentual = (gasto / meta) * 100 if meta > 0 else 0
+    cor = "🟢" if gasto <= meta else "🔴"
+    st.write(f"{cor} {categoria}: R$ {gasto:.2f} / Meta: R$ {meta:.2f} ({percentual:.1f}%)")
+
+# Alerta de estouro de orçamento
+estouradas = [cat for cat, meta in metas.items() if categoria_total.get(cat, 0) > meta]
+if estouradas:
+    st.warning(f"⚠️ Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
+
 
     # Exportar CSV
     st.subheader("📥 Exportar dados")
