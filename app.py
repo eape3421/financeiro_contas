@@ -59,14 +59,15 @@ with st.form("formulario_manual"):
     valor = st.number_input("Valor (R$)", min_value=0.0, step=0.01)
     enviar = st.form_submit_button("Adicionar")
 if enviar:
-    novo_gasto = pd.DataFrame([{
-            "Data": data,
-            "Categoria": categoria,
-            "Descrição": descricao,
-            "Valor": valor
-        }])
-        df = pd.concat([df, novo_gasto], ignore_index=True)
-        st.success("Gasto adicionado com sucesso!")
+    novo_gasto = pd.DataFrame([{ 
+        "Data": data, 
+        "Categoria": categoria, 
+        "Descrição": descricao, 
+        "Valor": valor 
+    }])
+    df = pd.concat([df, novo_gasto], ignore_index=True)
+    st.success("Gasto adicionado com sucesso!")
+
 
 # Filtro por período
 if not df.empty:
