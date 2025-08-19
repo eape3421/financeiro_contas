@@ -74,6 +74,13 @@ if not df.empty:
     max_date = df['Data'].max()
     start_date, end_date = st.date_input("📅 Selecione o período", [min_date, max_date])
     df_filtrado = df[(df['Data'] >= pd.to_datetime(start_date)) & (df['Data'] <= pd.to_datetime(end_date))]
+# Indicadores principais
+st.subheader("📌 Indicadores")
+col1, col2, col3 = st.columns(3)
+col1.metric("Total gasto", f"R$ {df_filtrado['Valor'].sum():.2f}")
+col2.metric("Média por gasto", f"R$ {df_filtrado['Valor'].mean():.2f}")
+categoria_top = categoria_total.idxmax()
+col3.metric("Categoria mais cara", f"{categoria_top} - R$ {categoria_total.max():.2f}")
 
     # Gráfico de gastos por categoria
     st.subheader("💸 Gastos por categoria")
@@ -95,6 +102,27 @@ for categoria, meta in metas.items():
 estouradas = [cat for cat, meta in metas.items() if categoria_total.get(cat, 0) > meta]
 if estouradas:
     st.warning(f"⚠️ Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
+# Gráfico de pizza
+st.subheader("🍕 Distribuição de gastos por categoria")
+fig2, ax2 = plt.subplots()
+ax2.pie(categoria_total, labels=categoria_total.index, autopct='%1.1f%%', startangle=90)
+ax2.axis('equal')
+st.pyplot(fig2)
+# Evolução dos gastos ao longo do tempo
+st.subheader("📉 Evolução dos gastos")
+df_evolucao = df_filtrado.groupby("Data")["Valor"].sum().reset_index()
+fig3, ax3 = plt.subplots()
+ax3.plot(df_evolucao["Data"], df_evolucao["Valor"], marker='o')
+ax3.set_xlabel("Data")
+ax3.set_ylabel("Valor (R$)")
+st.pyplot(fig3)
+# Filtro por categoria
+st.subheader("🔍 Filtrar por categoria")
+categoria_selecionada = st.selectbox("Escolha uma categoria", df_filtrado["Categoria"].unique())
+df_categoria = df_filtrado[df_filtrado["Categoria"] == categoria_selecionada]
+
+st.write(f"Gastos na categoria **{categoria_selecionada}**:")
+st.dataframe(df_categoria)
 
 # Metas mensais por categoria (formulário interativo)
 st.subheader("🎯 Defina suas metas mensais")
