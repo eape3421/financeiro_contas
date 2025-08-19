@@ -10,4 +10,5 @@ numpy
 SpeechRecognition
 streamlit-gsheets-connection
 validators==0.21.1
+st-gsheets-connection
 
