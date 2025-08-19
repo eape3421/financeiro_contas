@@ -8,6 +8,115 @@ from datetime import datetime
 import speech_recognition as sr
 from PIL import Image
 
+
+# 🎯 Banco de dados local para metas
+conn_sqlite = sqlite3.connect("financeiro.db", check_same_thread=False)
+cursor = conn_sqlite.cursor()
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS metas (
+        categoria TEXT PRIMARY KEY,
+        valor REAL
+    )
+""")
+conn_sqlite.commit()
+
+
+
+# 🎯 Banco de dados para metas
+conn = sqlite3.connect("financeiro.db", check_same_thread=False)
+cursor = conn.cursor()
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS metas (
+        categoria TEXT PRIMARY KEY,
+        valor REAL
+    )
+""")
+conn.commit()
+
+def salvar_meta(categoria, valor):
+    cursor.execute("""
+        INSERT INTO metas (categoria, valor)
+        VALUES (?, ?)
+        ON CONFLICT(categoria) DO UPDATE SET valor=excluded.valor
+    """, (categoria, valor))
+    conn.commit()
+
+def carregar_metas():
+    cursor.execute("SELECT categoria, valor FROM metas")
+    return dict(cursor.fetchall())
+
+# 🧠 Funções principais
+def filtrar_por_periodo(df):
+    if df.empty:
+        return pd.DataFrame(columns=["Data", "Categoria", "Descrição", "Valor"])
+    min_date = df['Data'].min()
+    max_date = df['Data'].max()
+    start_date, end_date = st.date_input("📅 Selecione o período", [min_date, max_date])
+    return df[(df['Data'] >= pd.to_datetime(start_date)) & (df['Data'] <= pd.to_datetime(end_date))]
+
+def mostrar_indicadores(df_filtrado):
+    st.subheader("📌 Indicadores")
+    categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+    col1, col2, col3 = st.columns(3)
+    col1.metric("💰 Total gasto", f"R$ {df_filtrado['Valor'].sum():.2f}")
+    col2.metric("📈 Média por gasto", f"R$ {df_filtrado['Valor'].mean():.2f}")
+    if not categoria_total.empty:
+        categoria_top = categoria_total.idxmax()
+        col3.metric("🔥 Categoria mais cara", f"{categoria_top} - R$ {categoria_total.max():.2f}")
+    else:
+        col3.metric("🔥 Categoria mais cara", "Nenhum dado disponível")
+    return categoria_total
+
+def mostrar_graficos(df_filtrado, categoria_total):
+    st.subheader("📊 Gastos por categoria")
+    fig = px.bar(categoria_total.reset_index(), x="Categoria", y="Valor", title="Gastos por Categoria", color="Categoria")
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("📉 Evolução dos gastos")
+    df_evolucao = df_filtrado.groupby("Data")["Valor"].sum().reset_index()
+    fig2 = px.line(df_evolucao, x="Data", y="Valor", markers=True, title="Evolução dos Gastos")
+    st.plotly_chart(fig2, use_container_width=True)
+
+def comparar_metas(df_filtrado):
+    st.subheader("📊 Comparativo com metas")
+    categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+    metas_salvas = carregar_metas()
+    for categoria, meta in metas_salvas.items():
+        gasto = categoria_total.get(categoria, 0)
+        percentual = (gasto / meta) * 100 if meta > 0 else 0
+        cor = "🟢" if gasto <= meta else "🔴"
+        st.write(f"{cor} {categoria}: R$ {gasto:.2f} / Meta: R$ {meta:.2f} ({percentual:.1f}%)")
+
+    estouradas = [cat for cat, meta in metas_salvas.items() if categoria_total.get(cat, 0) > meta]
+    if estouradas:
+        st.warning(f"⚠️ Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
+
+def exportar_e_enviar(df_filtrado, df):
+    st.subheader("📥 Exportar dados")
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button("⬇️ Baixar como CSV", data=csv, file_name="gastos_financeiros.csv", mime="text/csv")
+
+    st.subheader("📧 Enviar relatório por e-mail")
+    destinatario = st.text_input("E-mail do destinatário")
+    if st.button("Enviar"):
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = "seuemail@gmail.com"
+            msg['To'] = destinatario
+            msg['Subject'] = "Relatório Financeiro"
+            corpo = f"Relatório de gastos:\n\n{df_filtrado.to_string(index=False)}"
+            msg.attach(MIMEText(corpo, 'plain'))
+            servidor = smtplib.SMTP('smtp.gmail.com', 587)
+            servidor.starttls()
+            servidor.login("seuemail@gmail.com", "sua_senha_de_app")
+            servidor.send_message(msg)
+            servidor.quit()
+            st.success("Relatório enviado com sucesso!")
+            st.toast("📤 E-mail enviado!")
+        except Exception as e:
+            st.error(f"Erro ao enviar e-mail: {e}")
+
+# 🚀 Interface pr
 st.set_page_config(page_title="Controle Financeiro", layout="wide")
 st.title("📊 Controle Financeiro Pessoal")
 st.markdown("Gerencie seus gastos, visualize gráficos e envie relatórios por e-mail.")
