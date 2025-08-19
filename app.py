@@ -7,6 +7,32 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import speech_recognition as sr
 from PIL import Image
+import sqlite3
+
+# Conexão com o banco de dados
+conn = sqlite3.connect("financeiro.db", check_same_thread=False)
+cursor = conn.cursor()
+
+# Criação da tabela de metas
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS metas (
+    categoria TEXT PRIMARY KEY,
+    valor REAL
+)
+""")
+conn.commit()
+
+def salvar_meta(categoria, valor):
+    cursor.execute("""
+    INSERT INTO metas (categoria, valor)
+    VALUES (?, ?)
+    ON CONFLICT(categoria) DO UPDATE SET valor=excluded.valor
+    """, (categoria, valor))
+    conn.commit()
+
+def carregar_metas():
+    cursor.execute("SELECT categoria, valor FROM metas")
+    return dict(cursor.fetchall())
 
 st.set_page_config(page_title="Controle Financeiro", layout="wide")
 st.title("📊 Controle Financeiro Pessoal")
@@ -55,13 +81,38 @@ if not df.empty:
     fig, ax = plt.subplots()
     categoria_total.plot(kind="bar", ax=ax)
     st.pyplot(fig)
+    
+st.subheader("📊 Comparativo com metas mensais")
+
+categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+
+for categoria, meta in metas.items():
+    gasto = categoria_total.get(categoria, 0)
+    percentual = (gasto / meta) * 100 if meta > 0 else 0
+    cor = "🟢" if gasto <= meta else "🔴"
+    st.write(f"{cor} {categoria}: R$ {gasto:.2f} / Meta: R$ {meta:.2f} ({percentual:.1f}%)")
+
+estouradas = [cat for cat, meta in metas.items() if categoria_total.get(cat, 0) > meta]
+if estouradas:
+    st.warning(f"⚠️ Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
+
 # Metas mensais por categoria (formulário interativo)
 st.subheader("🎯 Defina suas metas mensais")
 
+metas_salvas = carregar_metas()
 metas = {}
 categorias = ["Alimentação", "Transporte", "Lazer", "Saúde", "Educação", "Moradia"]
-for categoria in categorias:
-    metas[categoria] = st.number_input(f"Meta para {categoria} (R$)", min_value=0.0, step=10.0, key=f"meta_{categoria}")
+
+with st.form("form_metas"):
+    for categoria in categorias:
+        valor_inicial = metas_salvas.get(categoria, 0.0)
+        metas[categoria] = st.number_input(f"Meta para {categoria} (R$)", min_value=0.0, step=10.0, value=valor_inicial, key=f"meta_{categoria}")
+    enviar_metas = st.form_submit_button("Salvar metas")
+
+if enviar_metas:
+    for categoria, valor in metas.items():
+        salvar_meta(categoria, valor)
+    st.success("✅ Metas salvas com sucesso!")
 
 # Comparativo com metas
 st.subheader("📊 Comparativo com metas mensais")
