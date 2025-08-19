@@ -111,7 +111,8 @@ st.subheader("📊 Comparativo com metas mensais")
 
 categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
 
-for categoria, meta in metas.items():
+metas_salvas = carregar_metas()
+for categoria, meta in metas_salvas.items():
     gasto = categoria_total.get(categoria, 0)
     percentual = (gasto / meta) * 100 if meta > 0 else 0
     cor = "🟢" if gasto <= meta else "🔴"
