@@ -67,15 +67,28 @@ def comparar_metas(df_filtrado):
     st.subheader("📊 Comparativo com metas")
     categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
     metas_salvas = carregar_metas()
+    estouradas = []
+    quase_estouradas = []
+
     for categoria, meta in metas_salvas.items():
         gasto = categoria_total.get(categoria, 0)
         percentual = (gasto / meta) * 100 if meta > 0 else 0
-        cor = "🟢" if gasto <= meta else "🔴"
+
+        if percentual >= 100:
+            cor = "🔴"
+            estouradas.append(categoria)
+        elif percentual >= 80:
+            cor = "🟡"
+            quase_estouradas.append(categoria)
+        else:
+            cor = "🟢"
+
         st.write(f"{cor} {categoria}: R$ {gasto:.2f} / Meta: R$ {meta:.2f} ({percentual:.1f}%)")
 
-    estouradas = [cat for cat, meta in metas_salvas.items() if categoria_total.get(cat, 0) > meta]
     if estouradas:
         st.warning(f"⚠️ Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
+    if quase_estouradas:
+        st.info(f"🟡 Atenção: você está perto de ultrapassar a meta nas categorias: {', '.join(quase_estouradas)}")
 
 def exportar_e_enviar(df_filtrado, df):
     st.subheader("📥 Exportar dados")
