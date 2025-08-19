@@ -39,6 +39,24 @@ def filtrar_por_periodo(df):
     max_date = df['Data'].max()
     start_date, end_date = st.date_input("📅 Selecione o período", [min_date, max_date])
     return df[(df['Data'] >= pd.to_datetime(start_date)) & (df['Data'] <= pd.to_datetime(end_date))]
+# 🚨 Alerta automático de metas
+categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+metas = carregar_metas()
+estouradas = []
+quase_estouradas = []
+
+for categoria, meta in metas.items():
+    gasto = categoria_total.get(categoria, 0)
+    percentual = (gasto / meta) * 100 if meta > 0 else 0
+    if percentual >= 100:
+        estouradas.append(categoria)
+    elif percentual >= 80:
+        quase_estouradas.append(categoria)
+
+if estouradas:
+    st.error(f"🚨 Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
+elif quase_estouradas:
+    st.warning(f"🟡 Atenção: você está perto de ultrapassar a meta nas categorias: {', '.join(quase_estouradas)}")
 
 def mostrar_indicadores(df_filtrado):
     st.subheader("📌 Indicadores")
