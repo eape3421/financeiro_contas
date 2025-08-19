@@ -227,7 +227,7 @@ with aba2:
     comparar_metas(df_filtrado)
 
 with aba3:
-    def grafico_pizza_alerta(categoria_total):
+ def grafico_pizza_alerta(categoria_total):
     st.subheader("🥧 Distribuição de gastos por categoria")
 
     metas = carregar_metas()
