@@ -122,6 +122,34 @@ def comparar_metas(df_filtrado):
         st.info(f"🟡 Atenção: você está perto de ultrapassar a meta nas categorias: {', '.join(quase_estouradas)}")
 
 def exportar_e_enviar(df_filtrado, df):
+    def grafico_pizza_alerta(categoria_total):
+    st.subheader("🥧 Distribuição de gastos por categoria")
+
+    metas = carregar_metas()
+    cores = []
+
+    for categoria in categoria_total.index:
+        gasto = categoria_total[categoria]
+        meta = metas.get(categoria, 0)
+        percentual = (gasto / meta) * 100 if meta > 0 else 0
+
+        if percentual >= 100:
+            cores.append("red")
+        elif percentual >= 80:
+            cores.append("orange")
+        else:
+            cores.append("green")
+
+    fig = px.pie(
+        categoria_total.reset_index(),
+        names="Categoria",
+        values="Valor",
+        title="Distribuição de Gastos por Categoria",
+        color=categoria_total.index,
+        color_discrete_sequence=cores
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
     st.subheader("📥 Exportar dados")
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button("⬇️ Baixar como CSV", data=csv, file_name="gastos_financeiros.csv", mime="text/csv")
