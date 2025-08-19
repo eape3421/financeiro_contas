@@ -8,3 +8,4 @@ xlsxwriter
 matplotlib
 numpy
 SpeechRecognition
+streamlit-gsheets-connection
