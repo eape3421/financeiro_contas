@@ -232,3 +232,31 @@ with aba2:
 
 with aba3:
     exportar_e_enviar(df_filtrado, df)
+    def grafico_pizza_alerta(categoria_total):
+    st.subheader("🥧 Distribuição de gastos por categoria")
+
+    metas = carregar_metas()
+    cores = []
+
+    for categoria in categoria_total.index:
+        gasto = categoria_total[categoria]
+        meta = metas.get(categoria, 0)
+        percentual = (gasto / meta) * 100 if meta > 0 else 0
+
+        if percentual >= 100:
+            cores.append("red")
+        elif percentual >= 80:
+            cores.append("orange")
+        else:
+            cores.append("green")
+
+    fig = px.pie(
+        categoria_total.reset_index(),
+        names="Categoria",
+        values="Valor",
+        title="Distribuição de Gastos por Categoria",
+        color=categoria_total.index,
+        color_discrete_sequence=cores
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
