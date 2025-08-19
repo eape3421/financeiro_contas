@@ -55,7 +55,31 @@ def mostrar_indicadores(df_filtrado):
 
 def mostrar_graficos(df_filtrado, categoria_total):
     st.subheader("📊 Gastos por categoria")
-    fig = px.bar(categoria_total.reset_index(), x="Categoria", y="Valor", title="Gastos por Categoria", color="Categoria")
+
+    metas_salvas = carregar_metas()
+    cores_personalizadas = []
+
+    for categoria in categoria_total.index:
+        gasto = categoria_total[categoria]
+        meta = metas_salvas.get(categoria, 0)
+        percentual = (gasto / meta) * 100 if meta > 0 else 0
+
+        if percentual >= 100:
+            cores_personalizadas.append("red")
+        elif percentual >= 80:
+            cores_personalizadas.append("orange")
+        else:
+            cores_personalizadas.append("green")
+
+    fig = px.bar(
+        categoria_total.reset_index(),
+        x="Categoria",
+        y="Valor",
+        title="Gastos por Categoria",
+        color=categoria_total.index,
+        color_discrete_sequence=cores_personalizadas
+    )
+
     st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("📉 Evolução dos gastos")
