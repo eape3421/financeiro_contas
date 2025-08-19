@@ -74,6 +74,9 @@ if not df.empty:
     max_date = df['Data'].max()
     start_date, end_date = st.date_input("📅 Selecione o período", [min_date, max_date])
     df_filtrado = df[(df['Data'] >= pd.to_datetime(start_date)) & (df['Data'] <= pd.to_datetime(end_date))]
+else:
+    df_filtrado = pd.DataFrame(columns=["Data", "Categoria", "Descrição", "Valor"])
+
 # Indicadores principais
 st.subheader("📌 Indicadores")
 col1, col2, col3 = st.columns(3)
