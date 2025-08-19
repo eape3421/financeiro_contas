@@ -231,8 +231,7 @@ with aba2:
     comparar_metas(df_filtrado)
 
 with aba3:
-    exportar_e_enviar(df_filtrado, df)
-    def grafico_pizza_alerta(categoria_total):
+   def grafico_pizza_alerta(categoria_total):
     st.subheader("🥧 Distribuição de gastos por categoria")
 
     metas = carregar_metas()
@@ -259,5 +258,3 @@ with aba3:
         color_discrete_sequence=cores
     )
     st.plotly_chart(fig, use_container_width=True)
-
-
