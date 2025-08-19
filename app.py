@@ -44,6 +44,7 @@ uploaded_file = st.file_uploader("📁 Envie sua planilha de gastos (.csv)", typ
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
     df['Data'] = pd.to_datetime(df['Data'], errors='coerce')
+    df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
     st.success("Planilha carregada com sucesso!")
 else:
     df = pd.DataFrame(columns=["Data", "Categoria", "Descrição", "Valor"])
@@ -57,9 +58,8 @@ with st.form("formulario_manual"):
     descricao = st.text_input("Descrição")
     valor = st.number_input("Valor (R$)", min_value=0.0, step=0.01)
     enviar = st.form_submit_button("Adicionar")
-
-    if enviar:
-        novo_gasto = pd.DataFrame([{
+if enviar:
+    novo_gasto = pd.DataFrame([{
             "Data": data,
             "Categoria": categoria,
             "Descrição": descricao,
@@ -78,14 +78,12 @@ else:
     df_filtrado = pd.DataFrame(columns=["Data", "Categoria", "Descrição", "Valor"])
 
 # Indicadores principais
-# Indicadores principais
 st.subheader("📌 Indicadores")
 col1, col2, col3 = st.columns(3)
 col1.metric("Total gasto", f"R$ {df_filtrado['Valor'].sum():.2f}")
 col2.metric("Média por gasto", f"R$ {df_filtrado['Valor'].mean():.2f}")
-
-# ✅ Correção aqui
 categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+
 if not categoria_total.empty:
     categoria_top = categoria_total.idxmax()
     col3.metric("Categoria mais cara", f"{categoria_top} - R$ {categoria_total.max():.2f}")
@@ -97,7 +95,15 @@ else:
 st.subheader("💸 Gastos por categoria")
 categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
 fig, ax = plt.subplots()
-categoria_total.plot(kind="bar", ax=ax)
+categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+
+if not categoria_total.empty and categoria_total.dtype in ['float64', 'int64']:
+    fig, ax = plt.subplots()
+    categoria_total.plot(kind="bar", ax=ax)
+    st.pyplot(fig)
+else:
+    st.info("Nenhum dado numérico disponível para gerar o gráfico de categorias.")
+
 st.pyplot(fig)
     
 st.subheader("📊 Comparativo com metas mensais")
