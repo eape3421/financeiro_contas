@@ -202,6 +202,7 @@ if uploaded_file:
     df = pd.read_csv(uploaded_file)
     df['Data'] = pd.to_datetime(df['Data'], errors='coerce')
     df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+    st.write("📋 Colunas do DataFrame carregado:", df.columns.tolist())
     st.success("Planilha carregada com sucesso!")
 else:
     df = pd.DataFrame(columns=["Data", "Categoria", "Descrição", "Valor"])
