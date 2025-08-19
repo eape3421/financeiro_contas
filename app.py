@@ -123,15 +123,11 @@ st.set_page_config(page_title="Controle Financeiro", layout="wide")
 st.title("📊 Controle Financeiro Pessoal")
 st.markdown("Gerencie seus gastos, visualize gráficos e envie relatórios por e-mail.")
 
-uploaded_file = st.file_uploader("📁 Envie sua planilha de gastos (.csv)", type=["csv"])
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-    df['Data'] = pd.to_datetime(df['Data'], errors='coerce')
-    df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
-    st.success("Planilha carregada com sucesso!")
-else:
-    df = pd.DataFrame(columns=["Data", "Categoria", "Descrição", "Valor"])
-    st.info("Nenhum arquivo enviado. Você pode adicionar gastos manualmente abaixo.")
+df = conn.read(worksheet="Sheet1")
+df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce")
+st.success("✅ Dados carregados do Google Sheets com sucesso!")
+
 
 # 📝 Formulário manual
 st.subheader("📝 Adicionar gasto manualmente")
