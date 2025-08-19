@@ -227,6 +227,28 @@ aba1, aba2, aba3 = st.tabs(["📊 Visão Geral", "🎯 Metas", "📥 Exportar & 
 with aba1:
     categoria_total = mostrar_indicadores(df_filtrado)
     mostrar_graficos(df_filtrado, categoria_total)
+    # 🚨 Alerta automático de metas
+if df_filtrado.empty or "Categoria" not in df_filtrado.columns:
+    st.warning("⚠️ Nenhum dado disponível para o período selecionado.")
+else:
+    categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+    metas = carregar_metas()
+    estouradas = []
+    quase_estouradas = []
+
+    for categoria, meta in metas.items():
+        gasto = categoria_total.get(categoria, 0)
+        percentual = (gasto / meta) * 100 if meta > 0 else 0
+        if percentual >= 100:
+            estouradas.append(categoria)
+        elif percentual >= 80:
+            quase_estouradas.append(categoria)
+
+    if estouradas:
+        st.error(f"🚨 Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
+    elif quase_estouradas:
+        st.warning(f"🟡 Atenção: você está perto de ultrapassar a meta nas categorias: {', '.join(quase_estouradas)}")
+
 
 with aba2:
     st.subheader("🎯 Defina suas metas mensais")
