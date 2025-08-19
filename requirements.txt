@@ -9,3 +9,5 @@ matplotlib
 numpy
 SpeechRecognition
 streamlit-gsheets-connection
+st-gsheets-connection
+validators==0.21.1
