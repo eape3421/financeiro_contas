@@ -83,11 +83,11 @@ categoria_top = categoria_total.idxmax()
 col3.metric("Categoria mais cara", f"{categoria_top} - R$ {categoria_total.max():.2f}")
 
     # Gráfico de gastos por categoria
-    st.subheader("💸 Gastos por categoria")
-    categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
-    fig, ax = plt.subplots()
-    categoria_total.plot(kind="bar", ax=ax)
-    st.pyplot(fig)
+st.subheader("💸 Gastos por categoria")
+categoria_total = df_filtrado.groupby("Categoria")["Valor"].sum()
+fig, ax = plt.subplots()
+categoria_total.plot(kind="bar", ax=ax)
+st.pyplot(fig)
     
 st.subheader("📊 Comparativo com metas mensais")
 
