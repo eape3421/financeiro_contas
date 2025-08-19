@@ -61,20 +61,20 @@ def mostrar_indicadores(df_filtrado):
 def mostrar_graficos(df_filtrado, categoria_total):
     st.subheader("📊 Gastos por categoria")
 
-    metas_salvas = carregar_metas()
-    cores_personalizadas = []
+    metas = carregar_metas()
+    cores = []
 
     for categoria in categoria_total.index:
         gasto = categoria_total[categoria]
-        meta = metas_salvas.get(categoria, 0)
+        meta = metas.get(categoria, 0)
         percentual = (gasto / meta) * 100 if meta > 0 else 0
 
         if percentual >= 100:
-            cores_personalizadas.append("red")
+            cores.append("red")
         elif percentual >= 80:
-            cores_personalizadas.append("orange")
+            cores.append("orange")
         else:
-            cores_personalizadas.append("green")
+            cores.append("green")
 
     fig = px.bar(
         categoria_total.reset_index(),
@@ -82,15 +82,17 @@ def mostrar_graficos(df_filtrado, categoria_total):
         y="Valor",
         title="Gastos por Categoria",
         color=categoria_total.index,
-        color_discrete_sequence=cores_personalizadas
+        color_discrete_sequence=cores
     )
-
     st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("📉 Evolução dos gastos")
     df_evolucao = df_filtrado.groupby("Data")["Valor"].sum().reset_index()
     fig2 = px.line(df_evolucao, x="Data", y="Valor", markers=True, title="Evolução dos Gastos")
     st.plotly_chart(fig2, use_container_width=True)
+
+    grafico_pizza_alerta(categoria_total)
+
 
 def comparar_metas(df_filtrado):
     st.subheader("📊 Comparativo com metas")
