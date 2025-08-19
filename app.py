@@ -118,7 +118,9 @@ for categoria, meta in metas_salvas.items():
     cor = "🟢" if gasto <= meta else "🔴"
     st.write(f"{cor} {categoria}: R$ {gasto:.2f} / Meta: R$ {meta:.2f} ({percentual:.1f}%)")
 
-estouradas = [cat for cat, meta in metas.items() if categoria_total.get(cat, 0) > meta]
+metas_salvas = carregar_metas()
+estouradas = [cat for cat, meta in metas_salvas.items() if categoria_total.get(cat, 0) > meta]
+
 if estouradas:
     st.warning(f"⚠️ Você ultrapassou a meta nas categorias: {', '.join(estouradas)}")
 # Gráfico de pizza
