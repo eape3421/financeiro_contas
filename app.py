@@ -7,8 +7,6 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import sqlite3
 
-# 🔗 Conexão com Google Sheets
-conn = st.connection("gsheets", type=GSheetsConnection)
 
 # 🎯 Banco de dados local para metas
 conn_sqlite = sqlite3.connect("financeiro.db", check_same_thread=False)
